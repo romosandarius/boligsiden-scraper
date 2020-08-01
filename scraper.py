@@ -39,9 +39,13 @@ class BoligScraper(object):
         self._save_df()
         
         print('Scraping finished!')    
+
+        print('Cleaning numeric columns..')
+        self._clean_cols()
+        print('Done!')
         
         return self.df
-    
+
     def _get_listing_page_df(self, url):
         
         # Get all script tags
@@ -66,4 +70,20 @@ class BoligScraper(object):
         
     def _save_df(self):
         self.df.to_pickle(f'./data/boligsiden_{date.today()}.pkl')
+    
+    def _clean_cols(self):
+        # Convert numeric columns to float
+        cols = ['paymentCash', 'downPayment', 'paymentExpenses', 'paymentGross','paymentNet', 'areaResidential', 
+                'numberOfRooms', 'areaParcel', 'salesPeriod', 'areaPaymentCash', 'areaWeighted', 'salesPeriodTotal']
+
+        def if_dash(x):
+            if not x.isnumeric():
+                x = 0
+            return x
+
+        for col in cols:
+            self.df[col] = self.df[col].apply(lambda x: x.replace('.', ''))
+            self.df[col] = self.df[col].apply(lambda x: if_dash(x))
+            self.df[col] = self.df[col].astype(float)
+        
     
