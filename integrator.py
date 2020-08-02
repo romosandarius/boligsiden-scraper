@@ -1,37 +1,49 @@
 import os
 import pandas as pd
-from datetime import datetime
+import datetime
 
 class Integrator(object):
-    
-    def integrate(self, df_on_market):
 
-        if os.path.isfile('./data/off-market.pkl'):
-            df_off_market = pd.read_pickle('./data/off-market.pkl')
-        else:
-            df_off_market = self._return_off_market_estates(df_on_market)
-            df_off_market.to_pickle('./data/off-market.pkl')
-            
+    def integrate(self, date=None):
+        df_date, df_yesterday = self._get_dfs(date)
+        df_off_market_new = self._return_off_market_estates(df_date, df_yesterday)
+        df_on_market_new = df_date
 
+        # Next time: update on + off market df
 
-        return
-
-    def _return_off_market_estates(df_on_market):
         
 
+        return df_on_market, df_off_market
+
+    def _get_dfs(self, date):
+        if date == None:
+            date = datetime.date.today() 
+        print(f'Date: {date}')
+        yesterday = date + datetime.timedelta(days=-1)
+        path_date = f'./data/boligsiden/{date}.pkl'
+        path_yesterday = f'./data/boligsiden/{yesterday}.pkl'
+        assert os.path.isfile(path_date), f'{path_date} does not exist'
+        assert os.path.isfile(path_yesterday), f'{path_yesterday} does not exist'
+        df_date = pd.read_pickle(path_date)
+        df_yesterday = pd.read_pickle(path_yesterday)
+        return df_date, df_yesterday
+
+
+    def _return_off_market_estates(self, df_date, df_yesterday):
+        
         # Create full address col, to compare dfs
-        df_db['fullAddress'] = df_db['address'] + ' ' + df_db['city']
-        df_on_market['fullAddress'] = df_on_market['address'] + ' ' + df_on_market['city']
+        df_yesterday['fullAddress'] = df_yesterday['address'] + ' ' + df_yesterday['city']
+        df_date['fullAddress'] = df_date['address'] + ' ' + df_date['city']
         
         # Identify off market estates
-        mask = ~df_db.fullAddress.isin(df_on_market.fullAddress)
-        df_off_market = df_db[mask].copy()
+        mask = ~df_yesterday.fullAddress.isin(df_date.fullAddress)
+        df_off_market = df_yesterday[mask].copy()
         
         # Add offMarketDate column
         df_off_market['offMarketDate'] = datetime.date.today().strftime('%d-%m-%Y')
         
         # Add saleConfirmed column (for later use)
-        df['saleConfirmed'] = False
+        df_off_market['saleConfirmed'] = False
         
         # Drop fullAddress column
         df_off_market = df_off_market.drop('fullAddress', axis=1)

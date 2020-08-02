@@ -5,48 +5,28 @@ from bs4 import BeautifulSoup
 from datetime import date
 
 class BoligScraper(object):
-    
     r"""Class for scraping www.boligsiden.dk"""
     
     def __init__(self, num_listings_per_page=5000):
-        
         self.num_listings_per_page = num_listings_per_page
         self.base_url = 'https://www.boligsiden.dk/resultat/1f923c02d4bf4c0ca6b0e7320ee8daee?s=12&sd=false&d=1&p={}&i={}'
     
     def scrape(self):
-        
-        print('Scraping..')
-        
+        print('Scraping..')      
         dfs = []
         for i in range(10000):
-            
             print(f'Scraping page {i+1}')
             # Get url
             url = self.base_url.format(i, self.num_listings_per_page)
             df = self._get_listing_page_df(url)
-
             if df.empty:
                 break
             else:
-                dfs.append(df)
-        
-        
-        # Concat all dfs
-        print('Concatenating DataFrames..')
+                dfs.append(df)      
         self.df = pd.concat(dfs)
-
-        # Add scrapeDate column
-        self.df['lastSeenOnMarket'] = date.today().strftime('%d-%m-%Y')
-        
-        print('Saving scraped data to disk..')
-        self._save_df()
-        
-        print('Scraping finished!')    
-
-        #print('Cleaning numeric columns..')
-        #self._clean_cols()
-        #print('Done!')
-        
+        self.df['scrapeDate'] = date.today()
+        self._save_df()        
+        print('Scraping finished!')            
         return self.df
 
     def _get_listing_page_df(self, url):
@@ -71,20 +51,18 @@ class BoligScraper(object):
                 
         return df
         
+
     def _save_df(self):
-        self.df.to_pickle(f'./data/boligsiden_{date.today()}.pkl')
-        #self.df.to_pickle(f'./data/on-market.pkl')
+        self.df.to_pickle(f'./data/boligsiden/{date.today()}.pkl')
+
 
     def _clean_cols(self):
-        # Convert numeric columns to float
         cols = ['paymentCash', 'downPayment', 'paymentExpenses', 'paymentGross','paymentNet', 'areaResidential', 
                 'numberOfRooms', 'areaParcel', 'salesPeriod', 'areaPaymentCash', 'areaWeighted', 'salesPeriodTotal']
-
         def if_dash(x):
             if not x.isnumeric():
                 x = 0
             return x
-
         for col in cols:
             self.df[col] = self.df[col].apply(lambda x: x.replace('.', ''))
             self.df[col] = self.df[col].apply(lambda x: if_dash(x))

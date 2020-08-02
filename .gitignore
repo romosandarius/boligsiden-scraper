@@ -1,9 +1,6 @@
 __pycache__/
 .ipynb_checkpoints/
 data/
-data/off-market
-data/on-market
+data/boligsiden/
 
-!data/.gitkeep
-!data/off-market/.gitkeep
-!data/on-market/.gitkeep
+!*.gitkeep
