@@ -34,15 +34,18 @@ class BoligScraper(object):
         # Concat all dfs
         print('Concatenating DataFrames..')
         self.df = pd.concat(dfs)
+
+        # Add scrapeDate column
+        self.df['lastSeenOnMarket'] = date.today().strftime('%d-%m-%Y')
         
         print('Saving scraped data to disk..')
         self._save_df()
         
         print('Scraping finished!')    
 
-        print('Cleaning numeric columns..')
-        self._clean_cols()
-        print('Done!')
+        #print('Cleaning numeric columns..')
+        #self._clean_cols()
+        #print('Done!')
         
         return self.df
 
@@ -70,7 +73,8 @@ class BoligScraper(object):
         
     def _save_df(self):
         self.df.to_pickle(f'./data/boligsiden_{date.today()}.pkl')
-    
+        #self.df.to_pickle(f'./data/on-market.pkl')
+
     def _clean_cols(self):
         # Convert numeric columns to float
         cols = ['paymentCash', 'downPayment', 'paymentExpenses', 'paymentGross','paymentNet', 'areaResidential', 
