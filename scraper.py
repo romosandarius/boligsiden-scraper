@@ -26,7 +26,7 @@ class BoligScraper(object):
         self.df = pd.concat(dfs)
         self.df['scrapeDate'] = date.today()
         self.df['scrapeDate'] = pd.to_datetime(df['scrapeDate'])
-        # Add liggetid column
+        self.df['liggetid'] = self.df['dateAnnounced'].apply(lambda x: (date.today() - x.date()).days) # Add liggetid column
         self._save_df()        
         print('Scraping finished!')            
         return self.df
