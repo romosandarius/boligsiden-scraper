@@ -15,15 +15,10 @@ from integrator import Integrator
 # preprocessor = Preprocessor()   
 # df = preprocessor.process()
 
-# import pandas as pd
-# df_on_market = pd.read_pickle('./data/boligsiden_2020-08-01.pkl')
-# df_on_market.to_pickle('./data/on-market.pkl')
-
 ## integrate data
-integrator = Integrator()
+integrator = Integrator(date=datetime.date.today() + datetime.timedelta(days=-1))
 integrator.integrate()
 
-# 1. update off-market df
-# 2. update on-market df
+#print(datetime.date.today() + datetime.timedelta(days=-3))
 
 
