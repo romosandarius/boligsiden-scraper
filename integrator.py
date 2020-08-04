@@ -38,7 +38,7 @@ class Integrator(object):
         df_off_market = df_yesterday[mask].copy()
         df_off_market['offMarketDate'] = self.date
         df_off_market['offMarketDate'] = pd.to_datetime(df_off_market['offMarketDate'])
-        df_off_market['liggetid'] = df_off_market['dateAnnounced'].apply(lambda x: (date.today() - self.date.date()).days)
+        df_off_market['liggetid'] = df_off_market['dateAnnounced'].apply(lambda x: (self.date.today() - x.date()).days)
         df_off_market['saleConfirmed'] = False
     
         df_off_market = df_off_market.drop('fullAddress', axis=1)
