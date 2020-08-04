@@ -4,6 +4,7 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import date
 import regex
+import config
 
 class BoligScraper(object):
     
@@ -13,7 +14,7 @@ class BoligScraper(object):
         self.save_df = save_df
     
 
-    def scrape(self):
+    def scrape_listings(self):
         print('Scraping boligsiden.dk ..') 
         self._collect_listed_items() 
         self._add_timestamp_column()
@@ -65,4 +66,4 @@ class BoligScraper(object):
                                         'agentsLogoLink', 'financing', 'calculateLoanAgentChain'])
 
     def _df_to_pickle(self):
-        self.df.to_pickle(f'./data/boligsiden/{date.today()}.pkl')
+        self.df.to_pickle(f'./data/{config.DIR_SCRAPING_JOBS}/{date.today()}.pkl')

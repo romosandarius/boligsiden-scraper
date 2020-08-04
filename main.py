@@ -8,13 +8,13 @@ from integrator import Integrator
 #~~~~~~~~~~~~~~#
 
 ## scrape
-scraper = BoligScraper()
-df = scraper.scrape()
-print(df.head())
+# scraper = BoligScraper()
+# df = scraper.scrape_listings()
+
 
 ## integrate data
-# integrator = Integrator(datetime.date.today())
-# integrator.integrate()
+integrator = Integrator(datetime.date.today())
+integrator.integrate()
 
 
 # ## preprocess
