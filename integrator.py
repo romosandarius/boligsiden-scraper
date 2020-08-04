@@ -14,13 +14,15 @@ class Integrator(object):
     def integrate(self):
         
         self._check_conditions()
-        self._handle_conditions()        
-
-        #self.SCRAPING_JOBS = sorted([file[:-4] for file in self.SCRAPING_JOBS]) # remove .pkl extension + sort
-        
+        self._handle_conditions()       
         
     
     def _check_conditions(self):
+
+        if not os.path.isdir('./data'): os.mkdir('./data')
+        if not os.path.isdir('./data/database'): os.mkdir('./data/database')
+        if not os.path.isdir('./data/scraping_jobs'): os.mkdir('./data/scraping_jobs')
+
         self.SCRAPING_JOBS = os.listdir(config.PATH_SCRAPING_JOBS)
         self.DATABASE = os.listdir(config.PATH_DATABASE)
     
@@ -47,8 +49,12 @@ class Integrator(object):
         # action conditions
         if (self.DATABASE_EXISTS and self.MULTIPLE_SCRAPING_JOBS):
             print(' CASE 3. DATABASE_EXISTS + MULTIPLE_SCRAPING_JOBS   -----> _integrate_latest()')
+            self._integrate_latest()
+
         elif (~self.DATABASE_EXISTS and self.ONE_SCRAPING_JOB):
-            print('CASE 5. ~DATABASE_EXISTS + ONE_SCRAPING_JOB        -----> _create_initial_database()')
+            print('CASE 5. ~DATABASE_EXISTS + ONE_SCRAPING_JOB        ----->_create_initial_database()')
+            self._create_initial_database()
+
         elif (~self.DATABASE_EXISTS and self.MULTIPLE_SCRAPING_JOBS):
             print('CASE 6. ~DATABASE_EXISTS + MULTIPLE_SCRAPING_JOBS  -----> _integrate_all()')
 
@@ -60,33 +66,24 @@ class Integrator(object):
         # 5. ~DATABASE_EXISTS + ONE_SCRAPING_JOB        -----> _create_initial_database()
         # 6. ~DATABASE_EXISTS + MULTIPLE_SCRAPING_JOBS  -----> _integrate_all()
 
+    def _create_initial_database(self):
+        df = pd.read_pickle(config.PATH_SCRAPING_JOBS + '/' + self.SCRAPING_JOBS[0])
+        df.to_pickle(config.PATH_DATABASE + '/' + config.NAME_DATABASE)
 
-    # def _get_two_latest_scrapes(self):
-    #     # Return boligsiden data from a given date and the day before.
-    #     print(f'Integrating: {self.date}')
-    #     yesterday = self.date + datetime.timedelta(days=-1)
-    #     path_date = f'./data/boligsiden/{self.date}.pkl'
-    #     path_yesterday = f'./data/boligsiden/{yesterday}.pkl'
-    #     assert os.path.isfile(path_date), f'{path_date} does not exist'
-    #     assert os.path.isfile(path_yesterday), f'{path_yesterday} does not exist'
-    #     df_date = pd.read_pickle(path_date)
-    #     df_yesterday = pd.read_pickle(path_yesterday)
-    #     return df_date, df_yesterday
-
-
-    # def _return_off_market_estates(self, df_date, df_yesterday):
-    #     # Return dataframe with estates that is taken off the market
-    #     df_yesterday['fullAddress'] = df_yesterday['address'] + ' ' + df_yesterday['city']
-    #     df_date['fullAddress'] = df_date['address'] + ' ' + df_date['city']        
-    #     mask = ~df_yesterday.fullAddress.isin(df_date.fullAddress)
-    #     df_off_market = df_yesterday[mask].copy()
-    #     df_off_market['offMarketDate'] = self.date
-    #     df_off_market['offMarketDate'] = pd.to_datetime(df_off_market['offMarketDate'])
-    #     df_off_market['liggetid'] = df_off_market['dateAnnounced'].apply(lambda x: (self.date.today() - x.date()).days)
-    #     df_off_market['saleConfirmed'] = False
-    
-    #     df_off_market = df_off_market.drop('fullAddress', axis=1)
+    def _integrate_latest(self):
+        # Find integrated dates
+        database = pd.read_pickle(config.PATH_DATABASE + '/' + config.NAME_DATABASE)
+        dates_integrated = database.scrapeDate.unique()
+        dates_integrated = [str(date)[:10] for date in dates_integrated]
         
-    #     return df_off_market
+        # Find scraped dates
+        dates_scraped = os.listdir(config.PATH_SCRAPING_JOBS)
+        dates_scraped = [date[:-4] for date in dates_scraped]
+        
+        # Get difference between integrated and scraped! NEXT UP!
+        date_to_integrate = list(set(dates_scraped) - set(dates_integrated))
+        print(date_to_integrate)
+
+
 
     
