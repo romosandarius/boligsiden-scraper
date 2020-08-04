@@ -10,18 +10,21 @@ from integrator import Integrator
 ## scrape
 scraper = BoligScraper()
 df = scraper.scrape()
+print(df.head())
+
+## integrate data
+# integrator = Integrator(datetime.date.today())
+# integrator.integrate()
+
 
 # ## preprocess
 # preprocessor = Preprocessor() 
 # df = preprocessor.process(df)
 
-# ## integrate data
-# integrator = Integrator(datetime.date.today())
-# integrator.integrate()
 
 
 ## To do:
-# 1. Refactor
-# 2. clean_cols not converting to float. Fix!
+# 1. Integrator
+# 2. Preprocessor
 # 3. Research possibilities for automatically running scrape daily 
-# 4.
+# .

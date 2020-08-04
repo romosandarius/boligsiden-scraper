@@ -1,24 +1,29 @@
 import os
 import pandas as pd
 import datetime
-#
+
 
 class Integrator(object):
 
-    def __init__(self, date):
+    def __init__(self, date, backfill=False):
         self.date = date
+        self.backfill = backfill
 
     def integrate(self):
         
-        df_date, df_yesterday = self._get_dfs()
-        df_off_market_new = self._return_off_market_estates(df_date, df_yesterday)
-        df_off_market = pd.read_pickle('./data/off-market.pkl')
-        df_off_market = pd.concat([df_off_market, df_off_market_new])
-        df_date.to_pickle('./data/on-market.pkl')
-        df_off_market.to_pickle('./data/off-market.pkl')
+        # if backfill false: integrate latest scraped data
+        # if backfill true: integrate all scraped data
+
+        
+        df, df_yd = self._get_two_latest_scrapings() # return todays df + yesterdays df
+        # df_off_market_new = self._return_off_market_estates(df_date, df_yesterday)
+        # df_off_market = pd.read_pickle('./data/off-market.pkl')
+        # df_off_market = pd.concat([df_off_market, df_off_market_new])
+        # df_date.to_pickle('./data/on-market.pkl')
+        # df_off_market.to_pickle('./data/off-market.pkl')
         
 
-    def _get_dfs(self):
+    def _get_two_latest_scrapes(self):
         # Return boligsiden data from a given date and the day before.
         print(f'Integrating: {self.date}')
         yesterday = self.date + datetime.timedelta(days=-1)

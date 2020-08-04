@@ -2,9 +2,17 @@ from geopy.geocoders import Nominatim
 from tqdm import tqdm
 import pandas as pd
 
-# Preprocess
+## Tasks:
+# 1. Drop duplicates
+# 2. Convert numeric columns to float (handle cols that are already float)
+# 3. Add liggetid column
+# 4. Add thumbnail pic
+# 5. Add geodata (can it be scraped?)
+
+
 class Preprocessor(object):
 
+    
     def process(self, df):
         #df['dateAnnounced'] = pd.to_datetime(df['dateAnnounced'])
         df = self._clean_columns(df)
