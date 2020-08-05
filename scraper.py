@@ -20,6 +20,7 @@ class BoligScraper(object):
         self._add_timestamp_column()
         self._add_off_market_column()
         self._drop_unused_columns()
+        self._drop_duplicates()
         if self.save_df: self._df_to_pickle()        
         print('Scraping finished!\n')            
         return self.df
@@ -64,6 +65,13 @@ class BoligScraper(object):
                                         'nextOpenHouse', 'nextOpenHouseSignup',
                                         'energyMarkLink', 'openHouseRedirectLink', 
                                         'agentsLogoLink', 'financing', 'calculateLoanAgentChain'])
+
+    def _drop_duplicates(self):
+        columns = list(self.df.columns)
+        columns.remove('rating')
+        self.df = self.df.drop_duplicates(subset=columns)
+        # self.df['fullAddress'] = self.df['address'] + ' | ' + self.df['postal'] + ' | ' + self.df['city']
+        # self.df = self.df[(~self.df.fullAddress.duplicated())]
 
     def _df_to_pickle(self):
         self.df.to_pickle(f'./data/{config.DIR_SCRAPING_JOBS}/{date.today()}.pkl')
