@@ -18,7 +18,6 @@ class BoligScraper(object):
         print('Scraping boligsiden.dk ..') 
         self._collect_listed_items() 
         self._add_timestamp_column()
-        self._add_off_market_column()
         self._drop_unused_columns()
         self._drop_duplicates()
         if self.save_df: self._df_to_pickle()        
@@ -54,11 +53,8 @@ class BoligScraper(object):
         
 
     def _add_timestamp_column(self):
-        self.df['scrapeDate'] = date.today()
-        self.df['scrapeDate'] = pd.to_datetime(self.df['scrapeDate'])
-
-    def _add_off_market_column(self):
-        self.df['offMarket'] = False
+        self.df['dateScraped'] = date.today()
+        self.df['dateScraped'] = pd.to_datetime(self.df['dateScraped'])
 
     def _drop_unused_columns(self):
         self.df = self.df.drop(columns=['isFavorite', 'isArchive', 'hasOpenHouse', 
@@ -70,8 +66,6 @@ class BoligScraper(object):
         columns = list(self.df.columns)
         columns.remove('rating')
         self.df = self.df.drop_duplicates(subset=columns)
-        # self.df['fullAddress'] = self.df['address'] + ' | ' + self.df['postal'] + ' | ' + self.df['city']
-        # self.df = self.df[(~self.df.fullAddress.duplicated())]
 
     def _df_to_pickle(self):
         self.df.to_pickle(f'./data/{config.DIR_SCRAPING_JOBS}/{date.today()}.pkl')
