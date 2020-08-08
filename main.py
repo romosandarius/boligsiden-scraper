@@ -16,5 +16,3 @@ integrator.integrate()
 
 
 
-# TO-DO 
-# - Clean columns (preprocessor)

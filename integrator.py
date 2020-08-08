@@ -83,10 +83,10 @@ class Integrator(object):
         df_off, df_new = self._detect_new_and_off_market_listings(df_mr, df_2mr) # get off market items
         
         # Add dateDetected column
-        df_off['dateDetected'] = date.today()
-        df_off['dateDetected'] = pd.to_datetime(df_off['dateDetected'])
-        df_new['dateDetected'] = date.today()
-        df_new['dateDetected'] = pd.to_datetime(df_new['dateDetected'])
+        df_off['dateLastSeen'] = self.SCRAPING_JOBS[-2]
+        df_off['dateLastSeen'] = pd.to_datetime(df_off['dateLastSeen'])
+        df_new['dateLastSeen'] = self.SCRAPING_JOBS[-2]
+        df_new['dateLastSeen'] = pd.to_datetime(df_new['dateLastSeen'])
         
 
         # Save on-market databse
