@@ -14,7 +14,6 @@ class Preprocessor(object):
 
     
     def process(self, df):
-        #df['dateAnnounced'] = pd.to_datetime(df['dateAnnounced'])
         df = self._clean_columns(df)
         #df = self._add_geodata(df)
 

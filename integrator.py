@@ -75,47 +75,18 @@ class Integrator(object):
         df = pd.read_pickle(config.PATH_SCRAPING_JOBS + '/' + self.SCRAPING_JOBS[0])
         df.to_pickle(config.PATH_DATABASE + '/' + config.NAME_DATABASE_ON_MARKET)
 
-
-    def _integrate_most_recent_job(self):
-        self.SCRAPING_JOBS = sorted(self.SCRAPING_JOBS)
-        df_mr = pd.read_pickle(config.PATH_SCRAPING_JOBS + '/' + self.SCRAPING_JOBS[-1]) # most recent job
-        df_2mr = pd.read_pickle(config.PATH_SCRAPING_JOBS + '/' + self.SCRAPING_JOBS[-2]) # second most recent job
-        df_off, df_new = self._detect_new_and_off_market_listings(df_mr, df_2mr) # get off market items
-        
-        # Add dateDetected column
-        df_off['dateLastSeen'] = self.SCRAPING_JOBS[-2]
-        df_off['dateLastSeen'] = pd.to_datetime(df_off['dateLastSeen'])
-        df_new['dateLastSeen'] = self.SCRAPING_JOBS[-2]
-        df_new['dateLastSeen'] = pd.to_datetime(df_new['dateLastSeen'])
-        
-
-        # Save on-market databse
-        df_mr.to_pickle(config.PATH_DATABASE_ON_MARKET)
-
-        # Append to or initiate to off-market database
-        if not os.path.isfile(config.PATH_DATABASE_OFF_MARKET):
-            df_off.to_pickle(config.PATH_DATABASE_OFF_MARKET)
+    def _append_to_db(self, df, path_db):
+        # Append to or initiate to off-market database  
+        if not os.path.isfile(path_db):
+            df.to_pickle(path_db)
         else:
-            df_db_off = pd.read_pickle(config.PATH_DATABASE_OFF_MARKET)
-            df_db_off = pd.concat([df_db_off, df_off])
-            # drop duplicates (fixes case where same date is integrated multiple times.. hacky..)
-            columns = list(df_db_off.columns)
+            df_db = pd.read_pickle(path_db)
+            df_db = pd.concat([df_db, df])
+            columns = list(df_db.columns)
             columns.remove('rating')
-            df_db_off = df_db_off.drop_duplicates(subset=columns)
-            df_db_off.to_pickle(config.PATH_DATABASE_OFF_MARKET)
-
-        # Append to or initiate new-on-market database
-        if not os.path.isfile(config.PATH_DATABASE_NEW_ON_MARKET):
-            df_new.to_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
-        else:
-            df_db_new = pd.read_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
-            df_db_new = pd.concat([df_db_new, df_new])
-            columns = list(df_db_new.columns)
-            columns.remove('rating')        
-            df_db_new = df_db_new.drop_duplicates(subset=columns)    
-            df_db_new.to_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
-
-
+            df_db = df_db.drop_duplicates(subset=columns)
+            df_db.to_pickle(path_db)
+    
     def _detect_new_and_off_market_listings(self, df_mr, df_2mr):
         df_diff = pd.concat([df_mr, df_2mr]).drop_duplicates(subset=['city', 'address', 'postal'], keep=False)
         dates = list(df_diff.dateScraped.unique())
@@ -123,6 +94,52 @@ class Integrator(object):
         df_new = df_diff[df_diff['dateScraped'] == dates[-1]].copy()
         df_off = df_diff[df_diff['dateScraped'] == dates[0]].copy()
         return df_off, df_new
+
+    def _integrate_most_recent_job(self):
+        self.SCRAPING_JOBS = sorted(self.SCRAPING_JOBS)
+        df_mr = pd.read_pickle(config.PATH_SCRAPING_JOBS + '/' + self.SCRAPING_JOBS[-1]) # most recent job
+        df_2mr = pd.read_pickle(config.PATH_SCRAPING_JOBS + '/' + self.SCRAPING_JOBS[-2]) # second most recent job
+        df_off, df_new = self._detect_new_and_off_market_listings(df_mr, df_2mr) # get off market items
+        
+        # Add dateLastSeen column
+        df_off['dateLastSeen'] = self.SCRAPING_JOBS[-2][:-4]
+        df_off['dateLastSeen'] = pd.to_datetime(df_off['dateLastSeen'])
+        df_new['dateLastSeen'] = self.SCRAPING_JOBS[-2][:-4]
+        df_new['dateLastSeen'] = pd.to_datetime(df_new['dateLastSeen'])
+        
+
+        # Save on-market databse
+        df_mr.to_pickle(config.PATH_DATABASE_ON_MARKET)
+
+        # Append off-market to db
+        self._append_to_db(df=df_off, path_db=config.PATH_DATABASE_OFF_MARKET)
+        
+        # Append new-in-market to db
+        self._append_to_db(df=df_new, path_db=config.PATH_DATABASE_NEW_ON_MARKET)
+
+        # # Append to or initiate to off-market database
+        # if not os.path.isfile(config.PATH_DATABASE_OFF_MARKET):
+        #     df_off.to_pickle(config.PATH_DATABASE_OFF_MARKET)
+        # else:
+        #     df_db_off = pd.read_pickle(config.PATH_DATABASE_OFF_MARKET)
+        #     df_db_off = pd.concat([df_db_off, df_off])
+        #     columns = list(df_db_off.columns)
+        #     columns.remove('rating')
+        #     df_db_off = df_db_off.drop_duplicates(subset=columns)
+        #     df_db_off.to_pickle(config.PATH_DATABASE_OFF_MARKET)
+
+        # # Append to or initiate new-on-market database
+        # if not os.path.isfile(config.PATH_DATABASE_NEW_ON_MARKET):
+        #     df_new.to_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
+        # else:
+        #     df_db_new = pd.read_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
+        #     df_db_new = pd.concat([df_db_new, df_new])
+        #     columns = list(df_db_new.columns)
+        #     columns.remove('rating')        
+        #     df_db_new = df_db_new.drop_duplicates(subset=columns)    
+        #     df_db_new.to_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
+
+
    
     def _integrate_all_jobs(self):
 
@@ -136,36 +153,46 @@ class Integrator(object):
                 df_2mr = pd.read_pickle(config.PATH_SCRAPING_JOBS + '/' + self.SCRAPING_JOBS[i-1])
                 df_off, df_new = self._detect_new_and_off_market_listings(df_mr, df_2mr)
             
-                # Add dateDetected column
-                df_off['dateDetected'] = date.today()
-                df_off['dateDetected'] = pd.to_datetime(df_off['dateDetected'])
-                df_new['dateDetected'] = date.today()
-                df_new['dateDetected'] = pd.to_datetime(df_new['dateDetected'])
+                # Add dateLastSeen column
+                df_off['dateLastSeen'] = self.SCRAPING_JOBS[-2][:-4]
+                df_off['dateLastSeen'] = pd.to_datetime(df_off['dateLastSeen'])
+                df_new['dateLastSeen'] = self.SCRAPING_JOBS[-2][:-4]
+                df_new['dateLastSeen'] = pd.to_datetime(df_new['dateLastSeen'])
+                
                 
 
                 # Save on-market datbase
                 df_mr.to_pickle(config.PATH_DATABASE_ON_MARKET)
+                
+                # Append off-market to db
+                self._append_to_db(df=df_off, path_db=config.PATH_DATABASE_OFF_MARKET)
+                
+                # Append new-in-market to db
+                self._append_to_db(df=df_new, path_db=config.PATH_DATABASE_NEW_ON_MARKET)
 
-                # Append to or initiate to off-market database
-                if not os.path.isfile(config.PATH_DATABASE_OFF_MARKET):
-                    df_off.to_pickle(config.PATH_DATABASE_OFF_MARKET)
-                else:
-                    df_db_off = pd.read_pickle(config.PATH_DATABASE_OFF_MARKET)
-                    df_db_off = pd.concat([df_db_off, df_off])
-                    # drop duplicates (fixes case where same date is integrated multiple times.. hacky..)
-                    columns = list(df_db_off.columns)
-                    columns.remove('rating')
-                    df_db_off = df_db_off.drop_duplicates(subset=columns)
-                    df_db_off.to_pickle(config.PATH_DATABASE_OFF_MARKET)
+                
+                
+                # if not os.path.isfile(config.PATH_DATABASE_OFF_MARKET):
+                #     df_off.to_pickle(config.PATH_DATABASE_OFF_MARKET)
+                # else:
+                #     df_db_off = pd.read_pickle(config.PATH_DATABASE_OFF_MARKET)
+                #     df_db_off = pd.concat([df_db_off, df_off])
+                #     # drop duplicates (fixes case where same date is integrated multiple times.. hacky..)
+                #     columns = list(df_db_off.columns)
+                #     columns.remove('rating')
+                #     df_db_off = df_db_off.drop_duplicates(subset=columns)
+                #     df_db_off.to_pickle(config.PATH_DATABASE_OFF_MARKET)
 
-                # Append to or initiate new-on-market database
-                if not os.path.isfile(config.PATH_DATABASE_NEW_ON_MARKET):
-                    df_new.to_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
-                else:
-                    df_db_new = pd.read_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
-                    df_db_new = pd.concat([df_db_new, df_new])
-                    columns = list(df_db_new.columns)
-                    columns.remove('rating')        
-                    df_db_new = df_db_new.drop_duplicates(subset=columns)    
-                    df_db_new.to_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
+                
+                # if not os.path.isfile(config.PATH_DATABASE_NEW_ON_MARKET):
+                #     df_new.to_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
+                # else:
+                #     df_db_new = pd.read_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
+                #     df_db_new = pd.concat([df_db_new, df_new])
+                #     columns = list(df_db_new.columns)
+                #     columns.remove('rating')        
+                #     df_db_new = df_db_new.drop_duplicates(subset=columns)    
+                #     df_db_new.to_pickle(config.PATH_DATABASE_NEW_ON_MARKET)
+
+
 
