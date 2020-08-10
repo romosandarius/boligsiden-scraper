@@ -7,8 +7,8 @@ from integrator import Integrator
 #~~~~~~~~~~~~~~#
 
 ## scrape
-# scraper = BoligScraper()
-# df = scraper.scrape_listings()
+scraper = BoligScraper()
+df = scraper.scrape_listings()
  
 ## integrate data
 integrator = Integrator()
