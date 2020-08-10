@@ -10,3 +10,12 @@ scraper = BoligScraper()
 df = scraper.scrape_listings()
 ```
 The scraped data is saved as a dataframe in pickle format in data/scraping_jobs/ .
+
+Before messing around with the dataframe, run the preprocessing process to convert price columns to from string to float:
+
+```
+from preprocessor import Preprocessor
+
+preprocessor = Preprocessor()
+df = preprocessor.process(df)
+```
