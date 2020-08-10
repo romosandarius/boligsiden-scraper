@@ -1,6 +1,7 @@
 
 # Boligsiden.dk Scraper
-![boligsiden](https://user-images.githubusercontent.com/39537120/89758269-b0fea380-dae7-11ea-96ad-e1e053ec8554.png)
+<img width="493" alt="boligsiden" src="https://user-images.githubusercontent.com/39537120/89758715-bad4d680-dae8-11ea-8e77-c85c02b78373.png">
+
 
 Scrape all estates at boligsiden.dk in less than a minute:
 ```
