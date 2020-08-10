@@ -9,3 +9,4 @@ from scraper import BoligScraper
 scraper = BoligScraper()
 df = scraper.scrape_listings()
 ```
+The scraped data is saved as a dataframe in pickle format in data/scraping_jobs/ .
