@@ -12,7 +12,10 @@ class BoligScraper(object):
         self.num_listings_per_page = num_listings_per_page
         self.base_url = 'https://www.boligsiden.dk/resultat/1f923c02d4bf4c0ca6b0e7320ee8daee?s=12&sd=false&d=1&p={}&i={}' # will this url always work?
         self.save_df = save_df
-    
+        if not os.path.isdir('./data'): os.mkdir('./data')
+        if not os.path.isdir('./data/database'): os.mkdir('./data/database')
+        if not os.path.isdir('./data/scraping_jobs'): os.mkdir('./data/scraping_jobs')
+
 
     def scrape_listings(self):
         print('Scraping boligsiden.dk ..') 
