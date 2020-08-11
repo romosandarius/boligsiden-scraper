@@ -15,13 +15,13 @@ df = scraper.scrape_listings()
 integrator = Integrator()
 integrator.integrate()
 
-## Load dfs from db
-df_off = pd.read_pickle('./data/database/db_off_market.pkl')
-df_new = pd.read_pickle('./data/database/db_new_on_market.pkl')
-df_on = pd.read_pickle('./data/database/db_on_market.pkl')
+# ## Load dfs from db
+# df_off = pd.read_pickle('./data/database/db_off_market.pkl')
+# df_new = pd.read_pickle('./data/database/db_new_on_market.pkl')
+# df_on = pd.read_pickle('./data/database/db_on_market.pkl')
 
-# Preprocess dataframes
-preprocessor = Preprocessor()
-df_off = preprocessor.process(df_off)
-df_new = preprocessor.process(df_new)
-df_on = preprocessor.process(df_on)
+# # Preprocess dataframes
+# preprocessor = Preprocessor()
+# df_off = preprocessor.process(df_off)
+# df_new = preprocessor.process(df_new)
+# df_on = preprocessor.process(df_on)
