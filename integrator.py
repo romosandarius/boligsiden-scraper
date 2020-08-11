@@ -32,10 +32,10 @@ class Integrator(object):
                 df_off, df_new = self._detect_new_and_off_market_listings(df_mr, df_2mr)
             
                 # Add dateLastSeen column
-                df_off['dateLastSeen'] = self.SCRAPING_JOBS[-2][:-4]
-                df_off['dateLastSeen'] = pd.to_datetime(df_off['dateLastSeen'])
-                df_new['dateLastSeen'] = self.SCRAPING_JOBS[-2][:-4]
-                df_new['dateLastSeen'] = pd.to_datetime(df_new['dateLastSeen'])      
+                df_off['dateOff'] = self.SCRAPING_JOBS[i][:-4]
+                df_off['dateOff'] = pd.to_datetime(df_off['dateOff'])
+                df_new['dateOn'] = self.SCRAPING_JOBS[i][:-4]
+                df_new['dateOn'] = pd.to_datetime(df_new['dateOn'])      
 
                 # Save on-market datbase
                 df_mr.to_pickle(config.PATH_DATABASE_ON_MARKET)
@@ -84,7 +84,7 @@ class Integrator(object):
 
         elif (~self.DATABASE_EXISTS and self.MULTIPLE_SCRAPING_JOBS):
             print('No database and multiple scraping job exists. Integrating all jobs.')
-            self._integrate_all_jobs()
+            self.integrate_all_jobs()
 
         # CASES:
         # 1. DATABASE_EXISTS + NO_SCRAPING_JOBS         -----> exit()
@@ -106,6 +106,8 @@ class Integrator(object):
             df.to_pickle(path_db)
         else:
             df_db = pd.read_pickle(path_db)
+            # print(df.columns)
+            # print(df_db.columns)
             df_db = pd.concat([df_db, df])
             columns = list(df_db.columns)
             columns.remove('rating')
@@ -129,10 +131,10 @@ class Integrator(object):
         df_off, df_new = self._detect_new_and_off_market_listings(df_mr, df_2mr) # get off market items
         
         # Add dateLastSeen column
-        df_off['dateLastSeen'] = self.SCRAPING_JOBS[-2][:-4]
-        df_off['dateLastSeen'] = pd.to_datetime(df_off['dateLastSeen'])
-        df_new['dateLastSeen'] = self.SCRAPING_JOBS[-2][:-4]
-        df_new['dateLastSeen'] = pd.to_datetime(df_new['dateLastSeen'])
+        df_off['dateOff'] = self.SCRAPING_JOBS[-i][:-4]
+        df_off['dateOff'] = pd.to_datetime(df_off['dateOff'])
+        df_new['dateOn'] = self.SCRAPING_JOBS[-1][:-4]
+        df_new['dateOn'] = pd.to_datetime(df_new['dateOn'])
         
         # Save on-market databse
         df_mr.to_pickle(config.PATH_DATABASE_ON_MARKET)
