@@ -8,13 +8,10 @@ import regex
 
 class BoligScraper(object):
     
-    def __init__(self, num_listings_per_page=1000, save_df=True):
+    def __init__(self, num_listings_per_page=1000):
         self.num_listings_per_page = num_listings_per_page
-        self.base_url = 'https://www.boligsiden.dk/resultat/976e8dd6ca274cd0b18ac7ed7fbe4703?s=12&sd=false&d=1&p={}&i={}' # will this url always work?
-        self.save_df = save_df
-        if not os.path.isdir('./data'): os.mkdir('./data')
-        if not os.path.isdir('./data/database'): os.mkdir('./data/database')
-        if not os.path.isdir('./data/scraping_jobs'): os.mkdir('./data/scraping_jobs')
+        self.base_url = 'https://www.boligsiden.dk/resultat/976e8dd6ca274cd0b18ac7ed7fbe4703?s=12&sd=false&d=1&p={}&i={}' 
+
 
 
     def scrape_listings(self):
