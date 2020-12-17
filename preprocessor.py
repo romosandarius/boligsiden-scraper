@@ -1,5 +1,3 @@
-from geopy.geocoders import Nominatim
-from tqdm import tqdm
 import pandas as pd
 
 ## Tasks:
@@ -15,8 +13,6 @@ class Preprocessor(object):
     
     def process(self, df):
         df = self._clean_columns(df)
-        #df = self._add_geodata(df)
-
         return df
 
     
@@ -35,22 +31,6 @@ class Preprocessor(object):
     
     
     def _add_geodata(self, df):
-        locator = Nominatim(user_agent='myGeocoder')
-        address = list(df['address'])
-        city = list(df['city'])
-        latitude = []
-        longitude = []
-        for i in tqdm(range(len(address))):     
-            location = locator.geocode('{}, {}, Denmark'.format(address[i], city[i]))
-            if location == None:
-                latitude.append(None)
-                longitude.append(None)
-            else:
-                latitude.append(location.latitude)
-                longitude.append(location.longitude)
-        df['latitude'] = pd.Series(latitude)
-        df['longitude'] = pd.Series(longitude)
-               
-        return df
-
+       pass
+        
     

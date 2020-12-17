@@ -5,13 +5,12 @@ import pandas as pd
 from bs4 import BeautifulSoup
 from datetime import date
 import regex
-import config
 
 class BoligScraper(object):
     
-    def __init__(self, num_listings_per_page=5000, save_df=True):
+    def __init__(self, num_listings_per_page=1000, save_df=True):
         self.num_listings_per_page = num_listings_per_page
-        self.base_url = 'https://www.boligsiden.dk/resultat/1f923c02d4bf4c0ca6b0e7320ee8daee?s=12&sd=false&d=1&p={}&i={}' # will this url always work?
+        self.base_url = 'https://www.boligsiden.dk/resultat/976e8dd6ca274cd0b18ac7ed7fbe4703?s=12&sd=false&d=1&p={}&i={}' # will this url always work?
         self.save_df = save_df
         if not os.path.isdir('./data'): os.mkdir('./data')
         if not os.path.isdir('./data/database'): os.mkdir('./data/database')
@@ -24,7 +23,7 @@ class BoligScraper(object):
         self._add_timestamp_column()
         self._drop_unused_columns()
         self._drop_duplicates()
-        if self.save_df: self._df_to_pickle()        
+        self.df.to_pickle(f'boliger_{date.today()}.pkl')  
         print('Scraping finished!\n')            
         return self.df
         
@@ -70,6 +69,3 @@ class BoligScraper(object):
         columns = list(self.df.columns)
         columns.remove('rating')
         self.df = self.df.drop_duplicates(subset=columns)
-
-    def _df_to_pickle(self):
-        self.df.to_pickle(f'./data/{config.DIR_SCRAPING_JOBS}/{date.today()}.pkl')
