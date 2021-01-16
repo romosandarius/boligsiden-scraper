@@ -1,4 +1,3 @@
-import os
 import json
 import requests
 import pandas as pd
@@ -12,14 +11,13 @@ class BoligScraper(object):
         self.num_listings_per_page = num_listings_per_page
         self.base_url = 'https://www.boligsiden.dk/resultat/976e8dd6ca274cd0b18ac7ed7fbe4703?s=12&sd=false&d=1&p={}&i={}' 
 
-
-
     def scrape_listings(self):
         print('Scraping boligsiden.dk ..') 
         self._collect_listed_items() 
         self._add_timestamp_column()
         self._drop_unused_columns()
         self._drop_duplicates()
+        self._clean_columns()
         self.df.to_pickle(f'boliger_{date.today()}.pkl')  
         print('Scraping finished!\n')            
         return self.df
@@ -66,3 +64,20 @@ class BoligScraper(object):
         columns = list(self.df.columns)
         columns.remove('rating')
         self.df = self.df.drop_duplicates(subset=columns)
+
+    def _clean_columns(self):
+            cols = ['paymentCash', 'downPayment', 'paymentExpenses', 'paymentGross','paymentNet', 'areaResidential', 
+                    'numberOfRooms', 'areaParcel', 'salesPeriod', 'areaPaymentCash', 'areaWeighted', 'salesPeriodTotal']
+            def if_dash(x):
+                if not x.isnumeric():
+                    x = 0
+                return x
+            for col in cols:
+                self.df[col] = self.df[col].apply(lambda x: x.replace('.', ''))
+                self.df[col] = self.df[col].apply(lambda x: if_dash(x))
+                self.df[col] = self.df[col].astype(float)
+
+
+if __name__ == "__main__":
+    scraper = BoligScraper()
+    df = scraper.scrape_listings()
