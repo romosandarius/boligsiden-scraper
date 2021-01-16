@@ -7,18 +7,21 @@ import regex
 
 class BoligScraper(object):
     
-    def __init__(self, num_listings_per_page=1000):
+    def __init__(self, base_url=None, dump_name=None, num_listings_per_page=1000):
         self.num_listings_per_page = num_listings_per_page
-        self.base_url = 'https://www.boligsiden.dk/resultat/976e8dd6ca274cd0b18ac7ed7fbe4703?s=12&sd=false&d=1&p={}&i={}' 
+        if dump_name == None:
+            self.dump_name = f'boliger_{date.today()}.pkl'
+        if base_url == None:
+            self.base_url = 'https://www.boligsiden.dk/resultat/976e8dd6ca274cd0b18ac7ed7fbe4703?s=12&sd=false&d=1&p={}&i={}' 
 
-    def scrape_listings(self):
+    def scrape(self):
         print('Scraping boligsiden.dk ..') 
         self._collect_listed_items() 
         self._add_timestamp_column()
         self._drop_unused_columns()
         self._drop_duplicates()
         self._clean_columns()
-        self.df.to_pickle(f'boliger_{date.today()}.pkl')  
+        self.df.to_pickle(self.dump_name)  
         print('Scraping finished!\n')            
         return self.df
         
@@ -80,4 +83,4 @@ class BoligScraper(object):
 
 if __name__ == "__main__":
     scraper = BoligScraper()
-    df = scraper.scrape_listings()
+    df = scraper.scrape()
